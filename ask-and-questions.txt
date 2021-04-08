@@ -1,0 +1,3 @@
+('What is the best rpg game?', 'The Witcher 3')
+('JavaScript or Python?', 'Python')
+('Which one is Better: React.js or Angular', 'React.js')
