@@ -2,9 +2,9 @@ import socket
 import random
 
  
-localIP     = "127.0.0.1"
-localPort   = 20001
-bufferSize  = 1024
+localIP = "127.0.0.1"
+localPort = 20001
+bufferSize = 1024
 
 commands = ['start', 'register']
 quizzStartedFlag = False
@@ -13,12 +13,10 @@ maxNumberOfClients = 5
 
 
 with open('ask-and-questions.txt') as file:
-    lines = file.readlines()
-    numberOfQuestions = len(lines)-1
+    askAndQuestionFile = file.readlines()
+    numberOfQuestions = len(askAndQuestionFile)-1
     getAnAleatoryLine = random.randint(0, numberOfQuestions)
     
-    print(lines[getAnAleatoryLine])
-
 # Create a datagram socket
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
@@ -35,11 +33,11 @@ while(True):
     message = bytesAddressPair[0]
     address = bytesAddressPair[1]
 
-    #When the user try to enter an aleatory command
+    # When the user try to enter an aleatory command
     if not (message in commands):
         msgFromServer = "Enter a correct Command \n"
     
-    #When the user try to join in a current match
+    # When the user try to join in a current match
     if (message == 'register' or message == 'start') and (quizzStartedFlag):
         msgFromServer = "There's a Quizz match running right now! \n"
 
@@ -47,7 +45,7 @@ while(True):
         msgFromServer = "Quizz started! \n"
         quizzStartedFlag = True
 
-    #Registration scope of a Client
+    # Registration scope of a Client
     if not quizzStartedFlag:
         if (len(listOfClientsConnected) < maxNumberOfClients):
             if message == 'register':
@@ -60,13 +58,9 @@ while(True):
         else:
             msgFromServer = "The Database is currently full! \n"
 
-    
-    if quizzStartedFlag:
-        msgFromServer = "Answer this question: What is Skyrim? \n"
-
-
     # Sending a reply to client
-    bytesToSend         = str.encode(msgFromServer)
+    bytesToSend = str.encode(msgFromServer)
+
+    # Here i tried to send the same response to all clients using the FOR
     for addressOfEachClientConected in listOfClientsConnected:
-        print(addressOfEachClientConected)
         UDPServerSocket.sendto(bytesToSend, addressOfEachClientConected)
