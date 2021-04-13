@@ -1,66 +1,117 @@
+import threading
 import socket
 import random
 
- 
 localIP = "127.0.0.1"
 localPort = 20001
 bufferSize = 1024
 
-commands = ['start', 'register']
-quizzStartedFlag = False
-listOfClientsConnected = []
-maxNumberOfClients = 5
-
-
 with open('ask-and-questions.txt') as file:
     askAndQuestionFile = file.readlines()
-    numberOfQuestions = len(askAndQuestionFile)-1
+    numberOfQuestions = len(askAndQuestionFile) - 1
     getAnAleatoryLine = random.randint(0, numberOfQuestions)
-    
+
+questions = [
+    ('What is the best rpg game?', 'The Witcher 3'),
+    ('JavaScript or Python?', 'Python'),
+    ('Which one is Better: React.js or Angular', 'React.js'),
+    ('What is the best rpg game?', 'The Witcher 3'),
+    ('JavaScript or Python?', 'Python'),
+    ('Which one is Better: React.js or Angular', 'React.js'),
+    ('What is the best rpg game?', 'The Witcher 3'),
+    ('JavaScript or Python?', 'Python'),
+    ('Which one is Better: React.js or Angular', 'React.js'),
+    ('What is the best rpg game?', 'The Witcher 3'),
+    ('JavaScript or Python?', 'Python'),
+    ('Which one is Better: React.js or Angular', 'React.js')
+]
+
 # Create a datagram socket
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
- 
+
 # Bind to address and ip
 UDPServerSocket.bind((localIP, localPort))
 
 print("UDP Server is running at port {}".format(localPort))
 
 
-# Listen for incoming datagrams
-while(True):
-    bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-    message = bytesAddressPair[0]
-    address = bytesAddressPair[1]
+def serverCycle(): 
+    atualQuestion = 0
+    maximumQuestions = 4
+    commands = ['start', 'register']
+    quizzStartedFlag = False
+    listOfClientsConnected = []
+    maxNumberOfClients = 5
+    address = 0
 
-    # When the user try to enter an aleatory command
-    if not (message in commands):
-        msgFromServer = "Enter a correct Command \n"
-    
-    # When the user try to join in a current match
-    if (message == 'register' or message == 'start') and (quizzStartedFlag):
-        msgFromServer = "There's a Quizz match running right now! \n"
+    def sendMessageToClient(msgFromServer):
+        bytesToSend = str.encode(msgFromServer)
+        print('Sending to {0}: {1}'.format(address, msgFromServer))
+        UDPServerSocket.sendto(bytesToSend, address)
 
-    if (message == 'start') and not (quizzStartedFlag):
-        msgFromServer = "Quizz started! \n"
-        quizzStartedFlag = True
+    def sendMessageToAllClients(msgFromServer):
+        for addressOfEachClientConected in listOfClientsConnected:
+            address = addressOfEachClientConected
+            sendMessageToClient(msgFromServer)
 
-    # Registration scope of a Client
-    if not quizzStartedFlag:
-        if (len(listOfClientsConnected) < maxNumberOfClients):
-            if message == 'register':
-                if not (address in listOfClientsConnected):
-                    listOfClientsConnected.append(address)
-                    msgFromServer = "Client successfully registred! \n"
-                    print('Client {} registred in the Database'.format(address))
-                else:
-                    msgFromServer = "Client already registred! \n"
+    def runNextQuestion(atualQuestion):
+        newQuestion = atualQuestion + 1
+
+        if atualQuestion < maximumQuestions:
+            sendMessageToClient("Question {0}: {1}".format(newQuestion, questions[newQuestion][0]))
         else:
-            msgFromServer = "The Database is currently full! \n"
+            sendMessageToClient("End of the quiz")
+            quizzStartedFlag = False
+    
+        return newQuestion
 
-    # Sending a reply to client
-    bytesToSend = str.encode(msgFromServer)
+    # Listen for incoming datagrams
+    while(True):
+        bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
+        allMessage = bytesAddressPair[0].decode("utf-8")
+        messageAndData = allMessage.split(' ')
 
-    # Here i tried to send the same response to all clients using the FOR
-    for addressOfEachClientConected in listOfClientsConnected:
-        UDPServerSocket.sendto(bytesToSend, addressOfEachClientConected)
+        message = messageAndData[0]
+        data = messageAndData[1:]
+        address = bytesAddressPair[1]
+
+        print('Received from client: {0} / {1}'.format(message, address))
+
+        # When the user try to enter an aleatory command
+        if not (message in commands):
+            sendMessageToClient("Enter a correct Command \n")
+        
+        # When the user try to join in a current match
+        if (message == 'register' or message == 'start') and (quizzStartedFlag):
+            sendMessageToClient( "There's a Quizz match running right now! \n")
+
+        if not quizzStartedFlag:
+            if (len(listOfClientsConnected) < maxNumberOfClients):
+                if message == 'register':
+                    if not (address in listOfClientsConnected):
+                        listOfClientsConnected.append(address)
+                        sendMessageToClient("Client successfully registred! \n")
+                        print('Client {} registred in the Database'.format(address))
+                    else:
+                        sendMessageToClient("Client already registred! \n")
+            else:
+                sendMessageToClient("The Database is currently full! \n")
+            
+            if (message == 'start'):
+                sendMessageToAllClients("Quiz started! \n")
+                atualQuestion = runNextQuestion(atualQuestion)
+                quizzStartedFlag = True
+
+        if quizzStartedFlag:
+            if message == 'answer':
+                if questions[atualQuestion][1] == data:
+                    sendMessageToAllClients("Correct! {0} has the right answer: {1}".format(address, data))
+                    atualQuestion = runNextQuestion(atualQuestion)
+                else:
+                    sendMessageToClient("Wrong... Try again")
+
+
+
+serverThread = threading.Thread(target=serverCycle, args=[])
+serverThread.start()
