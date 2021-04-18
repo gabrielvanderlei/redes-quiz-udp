@@ -26,6 +26,8 @@ questions = [
     ('Which one is Better: React.js or Angular', 'React.js')
 ]
 
+userPoints = {}
+
 # Create a datagram socket
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
@@ -55,13 +57,23 @@ def serverCycle():
             address = addressOfEachClientConected
             sendMessageToClient(msgFromServer)
 
-    def runNextQuestion(atualQuestion):
+    def runNextQuestion(atualQuestion, correctMessage=False):
         newQuestion = atualQuestion + 1
 
         if atualQuestion < maximumQuestions:
-            sendMessageToClient("Question {0}: {1}".format(newQuestion, questions[newQuestion][0]))
+            if not correctMessage:
+                sendMessageToAllClients("Question {0}: {1}".format(newQuestion, questions[newQuestion][0]))
+            else:
+                sendMessageToAllClients("{0} \n Question {1}: {2}".format(correctMessage, newQuestion, questions[newQuestion][0]))
         else:
-            sendMessageToClient("End of the quiz")
+            message = "End of the quiz. \n"
+            message += "The final pontuation was: \n"
+            
+            for userAddress in userPoints:
+                points = userPoints[userAddress]
+                message += "{0}: {1}".format(userAddress, points)
+            
+            sendMessageToAllClients(message)
             quizzStartedFlag = False
     
         return newQuestion
@@ -69,28 +81,25 @@ def serverCycle():
     # Listen for incoming datagrams
     while(True):
         bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-        allMessage = bytesAddressPair[0].decode("utf-8")
-        messageAndData = allMessage.split(' ')
-
-        message = messageAndData[0]
-        data = messageAndData[1:]
+        message = bytesAddressPair[0].decode("utf-8")
         address = bytesAddressPair[1]
 
         print('Received from client: {0} / {1}'.format(message, address))
 
-        # When the user try to enter an aleatory command
-        if not (message in commands):
-            sendMessageToClient("Enter a correct Command \n")
-        
-        # When the user try to join in a current match
-        if (message == 'register' or message == 'start') and (quizzStartedFlag):
-            sendMessageToClient( "There's a Quizz match running right now! \n")
-
         if not quizzStartedFlag:
+            # When the user try to enter an aleatory command
+            if not (message in commands):
+                sendMessageToClient("Enter a correct Command \n")
+            
+            # When the user try to join in a current match
+            if (message == 'register' or message == 'start') and (quizzStartedFlag):
+                sendMessageToClient( "There's a Quizz match running right now! \n")
+                
             if (len(listOfClientsConnected) < maxNumberOfClients):
                 if message == 'register':
                     if not (address in listOfClientsConnected):
                         listOfClientsConnected.append(address)
+                        userPoints[address] = 0
                         sendMessageToClient("Client successfully registred! \n")
                         print('Client {} registred in the Database'.format(address))
                     else:
@@ -99,17 +108,16 @@ def serverCycle():
                 sendMessageToClient("The Database is currently full! \n")
             
             if (message == 'start'):
-                sendMessageToAllClients("Quiz started! \n")
                 atualQuestion = runNextQuestion(atualQuestion)
                 quizzStartedFlag = True
 
-        if quizzStartedFlag:
-            if message == 'answer':
-                if questions[atualQuestion][1] == data:
-                    sendMessageToAllClients("Correct! {0} has the right answer: {1}".format(address, data))
-                    atualQuestion = runNextQuestion(atualQuestion)
-                else:
-                    sendMessageToClient("Wrong... Try again")
+        else:
+            if questions[atualQuestion][1] == message:
+                userPoints[address] += 5
+                atualQuestion = runNextQuestion(atualQuestion, "Correct! {0} has the right answer: {1}".format(address, message))
+            else:
+                userPoints[address] -= 5
+                sendMessageToClient("Wrong... Try again")
 
 
 
