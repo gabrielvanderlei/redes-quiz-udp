@@ -14,7 +14,7 @@ def clientCycle():
 
         UDPClientSocket.sendto(bytesToSend, serverAddressPort)
         msgFromServer = UDPClientSocket.recvfrom(bufferSize)
-        msg = "Message from Server: {}".format(msgFromServer[0])
+        msg = "Message from Server: \n {0}".format(msgFromServer[0].decode("utf-8"))
 
         print(msg)
 
