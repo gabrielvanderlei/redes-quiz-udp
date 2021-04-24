@@ -1,12 +1,25 @@
-What is the best rpg game? /// The Witcher 3
-JavaScript or Python? /// Python
-Which one is Better: React.js or Angular? /// React.js
-What is the best rpg game? /// The Witcher 3
-JavaScript or Python? /// Python
-Which one is Better: React.js or Angular? /// React.js
-What is the best rpg game? /// The Witcher 3
-JavaScript or Python? /// Python
-Which one is Better: React.js or Angular? /// React.js
-What is the best rpg game? /// The Witcher 3
-JavaScript or Python? /// Python
-Which one is Better: React.js or Angular? /// React.js
+Quantos dias tem em um ano? /// 365 dias
+Quantos segundos tem dois minutos? /// 120 segundos
+Quem proclamou a independência do Brasil? /// Don Pedro Primeiro
+Qual o nome da extensão utilizada para desenvolver em react? /// JSX
+Qual o principal concorrente do Vue.js? /// React
+Entre React Native e Flutter, qual é o melhor? /// Flutter
+Qual o nome do JavaScript tipado? /// TypeScript
+Qual é o nome do motor utilizado no browser para rodar o JavaScript? /// v8
+Qual é o nome do motor utilizado para rodar o JavaScript no computador? /// node
+Qual é a ferramenta de versionamento de código mais famoso do mundo? /// git
+Qual é o nome da plataforma mais conhecida para armazenar repositórios git? /// git hub
+Qual é o maior concorrente do Git Hub? /// git lab
+Qual é o nome do criador da internet? /// tim berners-lee
+Qual é o protocolo mais seguro para se utilizar em um download entre o TCP e o UDP? /// TCP
+Qual é o melhor protocolo da camada de transporte para se utilizar num broadcast? /// UDP
+Quantos métodos existem no protocolo HTTP? /// 5
+Qual é o método utilizado no protocolo HTTP quando é feita uma requisição no browser? /// GET
+Qual é o nome do protocolo utilizado no HTTPS que o diferencia do tradicional HTTP? /// SSL
+Qual é a linguagem de programação mais utilizada no universo do machine learning? /// python
+Qual é a linguagem mais utilizada na programação web atualmente? /// JavaScript
+Qual é o sistema operacional mais utilizado em servidores? /// linux
+Qual é a distro linux mais utilizada pelos usuários? /// ubuntu
+Qual é a distro linux mais utilizada no cenário de cyber security? /// kali
+Qual é o maior concorrente do Ubuntu dentre as distros mais utilizadas? /// mint
+Qual é o pokémon mais forte de todos? /// Ratata 
