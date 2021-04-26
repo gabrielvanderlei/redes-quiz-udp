@@ -54,11 +54,13 @@ def getQuestions():
     return questions
 
 def sendMessageToClient(msgFromServer):
+    global address
     bytesToSend = str.encode(msgFromServer)
     print('Sending to {0}: {1}'.format(address, msgFromServer))
     UDPServerSocket.sendto(bytesToSend, address)
 
 def sendMessageToAllClients(msgFromServer):
+    global address
     for addressOfEachClientConected in listOfClientsConnected:
         address = addressOfEachClientConected
         sendMessageToClient(msgFromServer)
@@ -78,8 +80,12 @@ def runNextQuestion(questionId, correctMessage=False):
             sendMessageToAllClients("{0}: {1}".format(userAddress, points))
         
         quizzStartedFlag = False
+        atualQuestion = 0
 
     return questionId
+
+def sanitize_answer(answer):
+    return str(answer).lower()
 
 def serverCycle(): 
     global POINTS_WINNING
@@ -120,7 +126,7 @@ def serverCycle():
                     if not (address in listOfClientsConnected):
                         listOfClientsConnected.append(address)
                         userPoints[address] = 0
-                        sendMessageToClient("Client successfully registered!")
+                        sendMessageToClient("Client successfully registered! Client: {0}".format(address))
                         sendMessageToClient("\n")
                         sendMessageToClient("Wellcome!")
                         sendMessageToClient("Correct answers will add to your pontuaction will be changed by {0}".format(POINTS_WINNING))
@@ -142,7 +148,7 @@ def serverCycle():
                 quizzStartedFlag = True
 
         else:
-            if questions[atualQuestion][1] == message:
+            if sanitize_answer(questions[atualQuestion][1]) == sanitize_answer(message):
                 waitingResponse = True
                 waitingResponseTimer = int(round(time.time() * 1000))
                 userPoints[address] += POINTS_WINNING

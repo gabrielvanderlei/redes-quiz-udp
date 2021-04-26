@@ -8,7 +8,7 @@ Qual o nome do JavaScript tipado? /// TypeScript
 Qual é o nome do motor utilizado no browser para rodar o JavaScript? /// v8
 Qual é o nome do motor utilizado para rodar o JavaScript no computador? /// node
 Qual é a ferramenta de versionamento de código mais famoso do mundo? /// git
-Qual é o nome da plataforma mais conhecida para armazenar repositórios git? /// git hub
+Qual é o nome da plataforma mais conhecida para armazenar repositórios git? /// github
 Qual é o maior concorrente do Git Hub? /// git lab
 Qual é o nome do criador da internet? /// tim berners-lee
 Qual é o protocolo mais seguro para se utilizar em um download entre o TCP e o UDP? /// TCP
